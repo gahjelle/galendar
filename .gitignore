@@ -130,6 +130,7 @@ celerybeat.pid
 # Environments
 .env
 .envrc
+.dropbox.token
 .venv
 env/
 venv/
