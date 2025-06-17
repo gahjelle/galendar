@@ -13,6 +13,7 @@ dependencies    = [
     "configaroo>=0.2.0",
     "dropbox>=12.0.2",
     "loguru>=0.7.3",
+    "parse>=1.20.2",
     "platformdirs>=4.3.8",
     "pyplugs>=0.5.2",
     "requests>=2.32.3",

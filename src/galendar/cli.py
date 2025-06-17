@@ -1,13 +1,17 @@
 """CLI for Galendar"""
 
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 import rich
 import typer
 
 from galendar import log
+from galendar.calendar import Calendar
 from galendar.config import config
+from galendar.formats import gcal
 from galendar.log import logger
+from galendar.sources import dropbox
 
 app = typer.Typer()
 console = rich.console.Console()
@@ -21,14 +25,19 @@ options = {
     "num_weeks": lambda num_weeks: typer.Option(
         num_weeks, "--num-weeks", "-n", help="Number of weeks to cover"
     ),
+    "fresh": typer.Option(
+        False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
+    ),
     "log_level": typer.Option(
         config.log.default_level, "--log-level", help="Level for logging"
     ),
+    "full_year": typer.Option(False, "--show-year", "-y", help="Show the full year"),
 }
 
 
-def init(log_level: str = config.log.default_level):
-    """Initializations common to several commands"""
+@app.callback()
+def main(log_level: str = config.log.default_level):
+    """Geir Arne's Dropbox backed calendar"""
     log.init(level=log_level)
 
 
@@ -42,16 +51,20 @@ def show_config():
 def show(
     start_date: datetime = options["start_date"](TODAY),
     num_weeks: int = options["num_weeks"](3),
-    log_level: str = options["log_level"],
+    full_year: bool = options["full_year"],
+    fresh: bool = options["fresh"],
 ):
     """Show the current calendar"""
-    init(log_level=log_level)
-
     end_date = start_date + timedelta(days=num_weeks * 7 - start_date.weekday())
-    logger.info(f"{start_date = } {end_date = }")
+    if full_year:
+        start_date = start_date.replace(month=1, day=1)
+        end_date = start_date.replace(year=start_date.year + 1)
+    logger.debug(f"Time range: {start_date} - {end_date}")
 
-    from galendar.sources import dropbox
-
-    file_name = "diary.txt"
-
-    print(dropbox.read_file(file_name))
+    diaries = "\n".join(
+        dropbox.read_file(diary_name, fresh=fresh)
+        for diary_name in ["diary.txt"]  # , "diary2024.txt"]
+    )
+    calendar = Calendar(gcal.parse(diaries))
+    for event in calendar.filter(start=start_date, end=end_date):
+        console.print(str(event))
