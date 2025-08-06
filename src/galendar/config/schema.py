@@ -1,19 +1,19 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, HttpUrl
+from pydantic import BaseModel, ConfigDict, HttpUrl, SecretStr
 
 
-class StrictConfig(BaseModel):
+class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class PathConfig(StrictConfig):
+class PathConfig(StrictModel):
     cache: Path
 
 
-class LogConfig(StrictConfig):
-    default_level: (
+class LogConfig(StrictModel):
+    level: (
         Literal["trace"]
         | Literal["debug"]
         | Literal["info"]
@@ -23,17 +23,17 @@ class LogConfig(StrictConfig):
     format: str
 
 
-class DropboxConfig(StrictConfig):
+class DropboxConfig(StrictModel):
     client_key: str
-    client_secret: str
-    client_token: str
+    client_secret: SecretStr
+    client_token: SecretStr
     auth_url: HttpUrl
     token_url: HttpUrl
     token_path: Path
     cache_timeout: int
 
 
-class GalendarConfig(StrictConfig):
+class GalendarConfig(StrictModel):
     paths: PathConfig
     log: LogConfig
     dropbox: DropboxConfig

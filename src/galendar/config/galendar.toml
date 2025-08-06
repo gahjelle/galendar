@@ -2,14 +2,14 @@
 cache = "{__init__.cache_path}"
 
 [log]
-default_level = "info"
-format        = "<green>{elapsed}</green> <level>{level:<8} {message}</level>"
+level = "debug"
+format = "<green>{elapsed}</green> <level>{level:<8} {message}</level>"
 
 [dropbox]
-client_key    = ""
+client_key = ""
 client_secret = ""
-client_token  = ""
-auth_url      = "https://www.dropbox.com/oauth2/authorize"
-token_url     = "https://api.dropboxapi.com/oauth2/token"
-token_path    = "{project_path}/.dropbox.token"
+client_token = ""
+auth_url = "https://www.dropbox.com/oauth2/authorize"
+token_url = "https://api.dropboxapi.com/oauth2/token"
+token_path = "{project_path}/.dropbox.token"
 cache_timeout = 3600
