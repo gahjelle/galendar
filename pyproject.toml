@@ -1,18 +1,19 @@
 [build-system]
-requires      = ["hatchling"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name            = "galendar"
-version         = "0.1.0"
-description     = "Simple calendar backed by Dropbox"
-readme          = "README.md"
-authors         = [{ name = "Geir Arne Hjelle", email = "geirarne@gmail.com" }]
+name = "galendar"
+version = "0.1.0"
+description = "Simple calendar backed by Dropbox"
+readme = "README.md"
+authors = [{ name = "Geir Arne Hjelle", email = "geirarne@gmail.com" }]
 requires-python = ">=3.13"
-dependencies    = [
-    "configaroo>=0.2.0",
+dependencies = [
+    "configaroo>=0.3.0",
     "dropbox>=12.0.2",
     "loguru>=0.7.3",
+    "parse>=1.20.2",
     "platformdirs>=4.3.8",
     "pyplugs>=0.5.2",
     "requests>=2.32.3",
@@ -24,6 +25,4 @@ dependencies    = [
 galendar = "galendar.__main__:main"
 
 [dependency-groups]
-dev = [
-    "ipython>=9.2.0",
-]
+dev = ["ipython>=9.2.0"]

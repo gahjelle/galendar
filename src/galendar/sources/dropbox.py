@@ -44,7 +44,9 @@ def dropbox_auth():
 def initialize_auth() -> None:
     """Do the first initialization of the auth process"""
     auth_flow = dropbox.DropboxOAuth2FlowNoRedirect(
-        cfg.client_key, cfg.client_secret, token_access_type="offline"
+        cfg.client_key,
+        cfg.client_secret.get_secret_value(),
+        token_access_type="offline",
     )
 
     authorize_url = auth_flow.start()
@@ -94,7 +96,7 @@ def refresh_tokens(refresh_token: str):
             "grant_type": "refresh_token",
             "refresh_token": refresh_token,
             "client_id": cfg.client_key,
-            "client_secret": cfg.client_secret,
+            "client_secret": cfg.client_secret.get_secret_value(),
         },
     )
 
