@@ -80,7 +80,7 @@ def get_access_token() -> str:
     tokens = json.loads(cfg.token_path.read_text(encoding="utf-8"))
 
     if not is_expired(tokens["expires_at"]):
-        return tokens["access_token"]
+        return str(tokens["access_token"])
 
     refresh_tokens(tokens["refresh_token"])
     return get_access_token()
@@ -95,6 +95,8 @@ def is_expired(expires_at: str) -> bool:
 def refresh_tokens(refresh_token: str) -> None:
     """Get a fresh authorization token."""
     logger.info("Refreshing the Dropbox token")
+
+    # sourcery skip: use-named-expression
     response = requests.post(
         str(cfg.token_url),
         data={

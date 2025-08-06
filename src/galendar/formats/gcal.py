@@ -1,24 +1,29 @@
 """Parse a gcal file into a list of calendar events."""
 
+import functools
+import re
 from collections.abc import Iterator
 from datetime import datetime, time, timedelta
-from types import SimpleNamespace
-
-import parse
 
 from galendar.calendar import Event
 from galendar.config import config
 
 DATE_FMT = "%Y%m%d"
 
-description_patterns = [
-    parse.compile("{start_time:%H:%M} {_} @ {location}, m {_}"),
-    parse.compile("{start_time:%H:%M} {_} @ {location}"),
-    parse.compile("{start_time:%H:%M} {_}"),
-    parse.compile("{_} @ {location}, m {_}"),
-    parse.compile("{_} @ {location}"),
-    parse.compile("{_}"),
-]
+
+@functools.cache
+def get_description_patterns() -> list[re.Pattern[str]]:
+    """Get regex patterns that can grab information from descriptions."""
+    start_time = r"(?P<start_time>[0-9]{1,2}:[0-9]{2})"
+    location = r"(?P<location>.+?)"
+    return [
+        re.compile(rf"^{start_time} (.+?) @ {location}, m (.+)$"),
+        re.compile(rf"^{start_time} (.+?) @ {location}$"),
+        re.compile(rf"^{start_time} (.+)$"),
+        re.compile(rf"^(.+?) @ {location}, m (.+)$"),
+        re.compile(rf"^(.+?) @ {location}$"),
+        re.compile(r"^(.+)$"),
+    ]
 
 
 def parse(file: str) -> list[Event]:
@@ -29,13 +34,16 @@ def parse(file: str) -> list[Event]:
 def parse_line(line: str) -> Iterator[Event]:
     """Parse one line in a gcal file."""
     date_str, _, description = line.partition("\t")
-    if not any(
-        (parts := pattern.parse(description.removeprefix("--")))
-        for pattern in description_patterns
-    ):
-        parts = SimpleNamespace(named={})
-    start_time = parts.named.get("start_time", time(0, 0))
-    location = parts.named.get("location", "")
+
+    parts: dict[str, str] = {}
+    for pattern in get_description_patterns():
+        if m := pattern.match(description.removeprefix("--")):
+            parts = m.groupdict()
+            break
+
+    start_hour, _, start_minute = parts.get("start_time", "0:00").partition(":")
+    start_time = time(int(start_hour), int(start_minute))
+    location = parts.get("location", "")
 
     for date in _convert_to_dates(date_str):
         yield Event(
