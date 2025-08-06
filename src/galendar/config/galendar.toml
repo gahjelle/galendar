@@ -1,3 +1,5 @@
+timezone = "Europe/Oslo"
+
 [paths]
 cache = "{__init__.cache_path}"
 
@@ -12,4 +14,5 @@ client_token = ""
 auth_url = "https://www.dropbox.com/oauth2/authorize"
 token_url = "https://api.dropboxapi.com/oauth2/token"
 token_path = "{project_path}/.dropbox.token"
+requests_timeout = 10
 cache_timeout = 3600

@@ -1,4 +1,4 @@
-"""Interact with cache"""
+"""Interact with cache."""
 
 import time
 
@@ -6,8 +6,8 @@ from galendar.config import config
 from galendar.log import logger
 
 
-def read_file(file_name: str, fresh: bool = False, timeout: int = 0):
-    """Read a file from cache"""
+def read_file(file_name: str, *, fresh: bool = False, timeout: int = 0) -> str:
+    """Read a file from cache."""
     path = config.paths.cache / file_name
     if not path.exists() or fresh:
         return ""
@@ -17,8 +17,8 @@ def read_file(file_name: str, fresh: bool = False, timeout: int = 0):
     return path.read_text(encoding="utf-8")
 
 
-def write_file(file_name: str, content: str):
-    """Write a file into cache"""
+def write_file(file_name: str, content: str) -> None:
+    """Write a file into cache."""
     path = config.paths.cache / file_name
     path.parent.mkdir(parents=True, exist_ok=True)
 

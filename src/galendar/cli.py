@@ -1,30 +1,25 @@
-"""CLI for Galendar"""
+"""CLI for Galendar."""
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import configaroo
-import rich
 import typer
 
 from galendar import log
 from galendar.calendar import Calendar
 from galendar.config import config
+from galendar.console import console
 from galendar.formats import gcal
 from galendar.log import logger
 from galendar.sources import dropbox
 
 app = typer.Typer()
-console = rich.console.Console()
 
-TODAY = date.today().isoformat()
+TODAY = datetime.now(tz=config.timezone).date().isoformat()
 
 options = {
-    "start_date": lambda start_date: typer.Option(
-        start_date, "--date", "-d", help="First date shown"
-    ),
-    "num_weeks": lambda num_weeks: typer.Option(
-        num_weeks, "--num-weeks", "-n", help="Number of weeks to cover"
-    ),
+    "start_date": typer.Option(TODAY, "--date", "-d", help="First date shown"),
+    "num_weeks": typer.Option(3, "--num-weeks", "-n", help="Number of weeks to cover"),
     "fresh": typer.Option(
         False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
     ),
@@ -33,25 +28,26 @@ options = {
 
 
 @app.callback()
-def main(log_level: str = config.log.level):
-    """Geir Arne's Dropbox backed calendar"""
+def main(log_level: str = config.log.level) -> None:
+    """Geir Arne's Dropbox backed calendar."""
     log.init(level=log_level)
 
 
 @app.command()
-def show_config():
-    """Show the configuration"""
+def show_config() -> None:
+    """Show the configuration."""
     configaroo.print_configuration(config)
 
 
 @app.command()
 def show(
-    start_date: datetime = options["start_date"](TODAY),
-    num_weeks: int = options["num_weeks"](3),
+    start_date: datetime = options["start_date"],
+    num_weeks: int = options["num_weeks"],
     full_year: bool = options["full_year"],
     fresh: bool = options["fresh"],
-):
-    """Show the current calendar"""
+) -> None:
+    """Show the current calendar."""
+    start_date = start_date.astimezone(tz=config.timezone)
     end_date = start_date + timedelta(days=num_weeks * 7 - start_date.weekday())
     if full_year:
         start_date = start_date.replace(month=1, day=1)

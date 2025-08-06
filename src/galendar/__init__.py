@@ -1,1 +1,1 @@
-"""Dropbox connected calendar"""
+"""Geir Arne's Dropbox backed calendar."""
