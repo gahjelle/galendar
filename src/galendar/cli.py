@@ -1,8 +1,8 @@
 """CLI for Galendar"""
 
 from datetime import date, datetime, timedelta
-from pathlib import Path
 
+import configaroo
 import rich
 import typer
 
@@ -28,15 +28,12 @@ options = {
     "fresh": typer.Option(
         False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
     ),
-    "log_level": typer.Option(
-        config.log.default_level, "--log-level", help="Level for logging"
-    ),
     "full_year": typer.Option(False, "--show-year", "-y", help="Show the full year"),
 }
 
 
 @app.callback()
-def main(log_level: str = config.log.default_level):
+def main(log_level: str = config.log.level):
     """Geir Arne's Dropbox backed calendar"""
     log.init(level=log_level)
 
@@ -44,7 +41,7 @@ def main(log_level: str = config.log.default_level):
 @app.command()
 def show_config():
     """Show the configuration"""
-    console.print(config)
+    configaroo.print_configuration(config)
 
 
 @app.command()
