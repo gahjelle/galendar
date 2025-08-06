@@ -1,10 +1,10 @@
-"""Entry point for calendar app"""
+"""Entry point for calendar app."""
 
 from galendar import cli
 
 
-def main():
-    """Run Galendar CLI"""
+def main() -> None:
+    """Run Galendar CLI."""
     cli.app()
 
 

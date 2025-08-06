@@ -1,4 +1,4 @@
-"""Load galendar configuration"""
+"""Load galendar configuration."""
 
 from importlib import resources
 
