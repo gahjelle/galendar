@@ -2,7 +2,11 @@ from datetime import datetime
 from types import TracebackType
 from typing import Literal, Self
 
-class FileMetadata: ...
+class FileMetadata:
+    name: str
+
+class ListFolderResult:
+    entries: list[FileMetadata]
 
 class Response:
     text: str
@@ -17,6 +21,7 @@ class Dropbox:
         exc_tb: TracebackType | None,
     ) -> None: ...
     def files_download(self, path: str) -> tuple[FileMetadata, Response]: ...
+    def files_list_folder(self, path: str) -> ListFolderResult: ...
     def files_upload(self, f: bytes, path: str) -> FileMetadata: ...
 
 class OAuth2FlowNoRedirectResult:

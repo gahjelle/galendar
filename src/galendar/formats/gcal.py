@@ -56,11 +56,12 @@ def parse_line(line: str) -> Iterator[Event]:
 
 def _convert_to_dates(date_str: str) -> Iterator[datetime]:
     """Convert a gcal date string into one or more Python datetimes."""
-    start_date_str, _, suffix = date_str.partition("#")
-    end_date_str = start_date_str[: -len(suffix)] + suffix if suffix else start_date_str
-    end_date = datetime.strptime(end_date_str, DATE_FMT).astimezone(tz=config.timezone)
+    start, _, suffix = date_str.partition("#")
+    end = start[: -len(suffix)] + suffix if suffix else start
 
-    date = datetime.strptime(start_date_str, DATE_FMT).astimezone(tz=config.timezone)
-    while date <= end_date:
-        yield date
-        date += timedelta(days=1)
+    if start:
+        end_date = datetime.strptime(end, DATE_FMT).astimezone(tz=config.timezone)
+        date = datetime.strptime(start, DATE_FMT).astimezone(tz=config.timezone)
+        while date <= end_date:
+            yield date
+            date += timedelta(days=1)

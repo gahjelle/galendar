@@ -16,10 +16,16 @@ from galendar.sources import cache
 cfg = config.dropbox
 
 
-def read_file(file_name: str, *, fresh: bool = False) -> str:
+def read_file(
+    file_name: str, *, fresh: bool = False, not_exist_ok: bool = False
+) -> str:
     """Read a file from Dropbox or cache."""
     content = cache.read_file(file_name, timeout=cfg.cache_timeout)
     if fresh or not content:
+        if not_exist_ok and file_name not in list_files():
+            logger.info(f"{file_name} is not available in Dropbox")
+            return ""
+
         with dropbox_auth() as dbx:
             logger.info(f"Downloading {file_name} from Dropbox")
             _, response = dbx.files_download(f"/{file_name}")
@@ -34,6 +40,12 @@ def write_file(file_name: str, content: str) -> None:
         logger.info(f"Writing {file_name} to Dropbox")
         dbx.files_upload(content.encode("utf-8"), f"/{file_name}")
         cache.write_file(file_name, content=content)
+
+
+def list_files() -> list[str]:
+    """List files available in Dropbox."""
+    with dropbox_auth() as dbx:
+        return [file.name for file in dbx.files_list_folder("").entries]
 
 
 @contextlib.contextmanager

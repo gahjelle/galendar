@@ -5,7 +5,9 @@ import pyplugs
 PACKAGE = str(__package__)
 
 
-def read_file(source: str, file_name: str, *, fresh: bool = False) -> str:
+def read_file(
+    source: str, file_name: str, *, fresh: bool = False, not_exist_ok: bool = False
+) -> str:
     """Read a file from the source."""
     return pyplugs.call_typed(
         PACKAGE,
@@ -14,6 +16,7 @@ def read_file(source: str, file_name: str, *, fresh: bool = False) -> str:
         _return_type=str(),  # noqa: UP018
         file_name=file_name,
         fresh=fresh,
+        not_exist_ok=not_exist_ok,
     )
 
 

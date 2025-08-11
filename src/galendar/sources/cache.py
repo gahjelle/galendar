@@ -6,8 +6,12 @@ from galendar.config import config
 from galendar.log import logger
 
 
-def read_file(file_name: str, *, fresh: bool = False, timeout: int = 0) -> str:
+def read_file(
+    file_name: str, *, fresh: bool = False, not_exist_ok: bool = False, timeout: int = 0
+) -> str:
     """Read a file from cache."""
+    logger.trace(f"{not_exist_ok = } is ignored for cache")
+
     path = config.paths.cache / file_name
     if not path.exists() or fresh:
         return ""

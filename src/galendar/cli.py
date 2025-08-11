@@ -54,9 +54,11 @@ def show(
         end_date = start_date.replace(year=start_date.year + 1)
     logger.debug(f"Time range: {start_date} - {end_date}")
 
+    num_days = (end_date - start_date).days
+    years = {d.year for d in [start_date + timedelta(days=n) for n in range(num_days)]}
     diaries = "\n".join(
-        dropbox.read_file(diary_name, fresh=fresh)
-        for diary_name in ["diary.txt"]  # , "diary2024.txt"]
+        dropbox.read_file(diary_name, fresh=fresh, not_exist_ok=True)
+        for diary_name in [f"diary{year}.txt" for year in years]
     )
     calendar = Calendar(gcal.parse(diaries))
     for event in calendar.filter(start=start_date, end=end_date):
