@@ -63,3 +63,13 @@ def show(
     calendar = Calendar(gcal.parse(diaries))
     for event in calendar.filter(start=start_date, end=end_date):
         console.print(str(event))
+
+
+@app.command()
+def add(start_date: datetime = options["start_date"]) -> None:
+    """Add an event to the calendar."""
+
+
+@app.command()
+def tui() -> None:
+    """Open the calendar TUI."""
