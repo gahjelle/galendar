@@ -66,8 +66,17 @@ def show(
 
 
 @app.command()
-def add(start_date: datetime = options["start_date"]) -> None:
+def add(
+    date: str = typer.Argument(help="Date of event"),
+    description: str = typer.Argument(help="Description of event"),
+) -> None:
     """Add an event to the calendar."""
+    logger.info(f"Adding event: {date} {description}")
+    diary_name = f"diary{date[:4]}.txt"
+    events = dropbox.read_file(diary_name, fresh=True, not_exist_ok=True).split("\n")
+    dropbox.write_file(
+        diary_name, "\n".join(sorted([f"{date}\t{description}", *events]))
+    )
 
 
 @app.command()

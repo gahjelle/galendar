@@ -2,6 +2,18 @@ from datetime import datetime
 from types import TracebackType
 from typing import Literal, Self
 
+from dropbox import files
+
+__all__ = [
+    "Dropbox",
+    "DropboxOAuth2FlowNoRedirect",
+    "FileMetadata",
+    "ListFolderResult",
+    "OAuth2FlowNoRedirectResult",
+    "Response",
+    "files",
+]
+
 class FileMetadata:
     name: str
 
@@ -22,7 +34,9 @@ class Dropbox:
     ) -> None: ...
     def files_download(self, path: str) -> tuple[FileMetadata, Response]: ...
     def files_list_folder(self, path: str) -> ListFolderResult: ...
-    def files_upload(self, f: bytes, path: str) -> FileMetadata: ...
+    def files_upload(
+        self, f: bytes, path: str, mode: files.WriteMode
+    ) -> FileMetadata: ...
 
 class OAuth2FlowNoRedirectResult:
     access_token: str

@@ -46,6 +46,8 @@ ignore = [
     "COM812", # Trailing comma missing (handled by formatter)
     "D203",   # Force blank line before class docstring (incompatible with D211)
     "D213",   # Start docstring on second line (incompatible with D212)
+    "TD003",  # Missing issue link for TODO (not tracking TODOs)
+    "FIX002", # Line contains TODO (ok to use TODO)
 ]
 
 [tool.ruff.lint.per-file-ignores]

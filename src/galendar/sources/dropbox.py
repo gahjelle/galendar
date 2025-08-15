@@ -6,6 +6,7 @@ from collections.abc import Generator
 from datetime import datetime, timedelta
 
 import dropbox
+import dropbox.files
 import requests
 
 from galendar.config import config
@@ -23,11 +24,11 @@ def read_file(
     content = cache.read_file(file_name, timeout=cfg.cache_timeout)
     if fresh or not content:
         if not_exist_ok and file_name not in list_files():
-            logger.info(f"{file_name} is not available in Dropbox")
+            logger.debug(f"{file_name} is not available in Dropbox")
             return ""
 
         with dropbox_auth() as dbx:
-            logger.info(f"Downloading {file_name} from Dropbox")
+            logger.debug(f"Downloading {file_name} from Dropbox")
             _, response = dbx.files_download(f"/{file_name}")
             content = response.text
             cache.write_file(file_name, content=content)
@@ -37,8 +38,14 @@ def read_file(
 def write_file(file_name: str, content: str) -> None:
     """Write a file to Dropbox and cache."""
     with dropbox_auth() as dbx:
-        logger.info(f"Writing {file_name} to Dropbox")
-        dbx.files_upload(content.encode("utf-8"), f"/{file_name}")
+        logger.debug(f"Writing {file_name} to Dropbox")
+        # TODO(gahjelle): Use update as WriteMode to handle conflicts better.
+        # Need to track rev in cache as well.
+        dbx.files_upload(
+            content.encode("utf-8"),
+            f"/{file_name}",
+            mode=dropbox.files.WriteMode("overwrite"),
+        )
         cache.write_file(file_name, content=content)
 
 
@@ -106,7 +113,7 @@ def is_expired(expires_at: str) -> bool:
 
 def refresh_tokens(refresh_token: str) -> None:
     """Get a fresh authorization token."""
-    logger.info("Refreshing the Dropbox token")
+    logger.debug("Refreshing the Dropbox token")
 
     # sourcery skip: use-named-expression
     response = requests.post(
