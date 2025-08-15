@@ -64,7 +64,7 @@ def show(
     )
     calendar = Calendar(gcal.parse(diaries))
     for event in calendar.filter(start=start_date, end=end_date):
-        if search and search.lower() in event.description.lower():
+        if search.lower() in event.description.lower():
             console.print(str(event))
 
 
