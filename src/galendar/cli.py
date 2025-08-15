@@ -20,6 +20,7 @@ TODAY = datetime.now(tz=config.timezone).date().isoformat()
 options = {
     "start_date": typer.Option(TODAY, "--date", "-d", help="First date shown"),
     "num_weeks": typer.Option(3, "--num-weeks", "-n", help="Number of weeks to cover"),
+    "search": typer.Option("", "--search", "-s", help="Phrase to search for"),
     "fresh": typer.Option(
         False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
     ),
@@ -44,6 +45,7 @@ def show(
     start_date: datetime = options["start_date"],
     num_weeks: int = options["num_weeks"],
     full_year: bool = options["full_year"],
+    search: str = options["search"],
     fresh: bool = options["fresh"],
 ) -> None:
     """Show the current calendar."""
@@ -62,7 +64,8 @@ def show(
     )
     calendar = Calendar(gcal.parse(diaries))
     for event in calendar.filter(start=start_date, end=end_date):
-        console.print(str(event))
+        if search and search.lower() in event.description.lower():
+            console.print(str(event))
 
 
 @app.command()
