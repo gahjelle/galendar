@@ -12,7 +12,7 @@ from galendar.config import config
 from galendar.console import console
 from galendar.formats import gcal
 from galendar.log import logger
-from galendar.sources import dropbox
+from galendar.sources import cache, dropbox
 
 app = typer.Typer()
 
@@ -30,6 +30,7 @@ options = {
     "all_time": typer.Option(
         False, "--all-time", "-a", help="Show events from all time"
     ),
+    "full_month": typer.Option(False, "--show-month", "-m", help="Show the full month"),
     "full_year": typer.Option(False, "--show-year", "-y", help="Show the full year"),
     "fresh": typer.Option(
         False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
@@ -60,25 +61,32 @@ def show(  # noqa: PLR0913
     show_cal: bool = options["show_cal"],
     search: str = options["search"],
     full_year: bool = options["full_year"],
+    full_month: bool = options["full_month"],
     all_time: bool = options["all_time"],
     fresh: bool = options["fresh"],
 ) -> None:
     """Show the current calendar."""
     start_date = start_date.astimezone(tz=config.timezone)
     end_date = start_date + timedelta(days=num_weeks * 7 - start_date.weekday())
+    if full_month:
+        start_date = start_date.replace(day=1)
+        end_date = (start_date + timedelta(days=31)).replace(day=1)
     if full_year:
         start_date = start_date.replace(month=1, day=1)
         end_date = start_date.replace(year=start_date.year + 1)
     if all_time:
-        start_date = datetime(2019, 1, 1, tzinfo=config.timezone)
+        start_date = datetime(2014, 1, 1, tzinfo=config.timezone)
 
     logger.debug(f"Time range: {start_date} - {end_date}")
+    console.print(f"[blue]{TODAY.strftime('%A, %-d %B %Y')}[/]\n")
 
     num_days = (end_date - start_date).days
-    years = {d.year for d in [start_date + timedelta(days=n) for n in range(num_days)]}
+    years = sorted(
+        {d.year for d in [start_date + timedelta(days=n) for n in range(num_days)]}
+    )
     diaries = "\n".join(
         dropbox.read_file(diary_name, fresh=fresh, not_exist_ok=True)
-        for diary_name in [f"diary{year}.txt" for year in years]
+        for diary_name in [config.files.events.format(year=year) for year in years]
     )
     events = Calendar(gcal.parse(diaries))
 
@@ -99,11 +107,20 @@ def add(
 ) -> None:
     """Add an event to the calendar."""
     logger.info(f"Adding event: {date} {description}")
-    diary_name = f"diary{date[:4]}.txt"
+    diary_name = config.files.events.format(year=date[:4])
     events = dropbox.read_file(diary_name, fresh=True, not_exist_ok=True).split("\n")
     dropbox.write_file(
         diary_name, "\n".join(sorted([f"{date}\t{description}", *events]))
     )
+
+
+@app.command()
+def upload(year: int = typer.Argument(help="Year file to upload")) -> None:
+    """Upload a calendar file."""
+    diary_name = config.files.events.format(year=year)
+    content = cache.read_file(diary_name)
+    if content:
+        dropbox.write_file(diary_name, content)
 
 
 @app.command()

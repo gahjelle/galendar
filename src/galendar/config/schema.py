@@ -17,6 +17,11 @@ class PathConfig(StrictModel):
     dropbox_token: Path
 
 
+class FilesConfig(StrictModel):
+    events: str
+    birthdays: str
+
+
 class LogConfig(StrictModel):
     level: Literal["trace", "debug", "info", "warning", "error"]
     format: str
@@ -35,5 +40,6 @@ class DropboxConfig(StrictModel):
 class GalendarConfig(StrictModel):
     timezone: ZoneInfo
     paths: PathConfig
+    files: FilesConfig
     log: LogConfig
     dropbox: DropboxConfig

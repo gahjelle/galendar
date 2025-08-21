@@ -5,6 +5,10 @@ cache = "{__init__.cache_path}"
 data = "{__init__.data_path}"
 dropbox_token = "{paths.data}/.dropbox.token"
 
+[files]
+events = "diary{year}.txt"
+birthdays = "birthday.txt"
+
 [log]
 level = "info"
 format = "<green>{elapsed}</green> <level>{level:<8} {message}</level>"

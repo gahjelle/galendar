@@ -15,7 +15,7 @@ def read_file(
     path = config.paths.cache / file_name
     if not path.exists() or fresh:
         return ""
-    if not timeout or time.time() - path.stat().st_mtime > timeout:
+    if timeout and time.time() - path.stat().st_mtime > timeout:
         return ""
     logger.debug(f"Read {file_name} from cache ({config.paths.cache})")
     return path.read_text(encoding="utf-8")
