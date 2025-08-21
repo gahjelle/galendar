@@ -15,16 +15,23 @@ from galendar.sources import dropbox
 
 app = typer.Typer()
 
-TODAY = datetime.now(tz=config.timezone).date().isoformat()
+TODAY = datetime.now(tz=config.timezone).date()
+YESTERDAY = TODAY - timedelta(days=1)
+MONDAY = TODAY - timedelta(days=TODAY.weekday())
 
 options = {
-    "start_date": typer.Option(TODAY, "--date", "-d", help="First date shown"),
+    "start_date": typer.Option(
+        YESTERDAY.isoformat(), "--date", "-d", help="First date shown"
+    ),
     "num_weeks": typer.Option(3, "--num-weeks", "-n", help="Number of weeks to cover"),
     "search": typer.Option("", "--search", "-s", help="Phrase to search for"),
+    "all_time": typer.Option(
+        False, "--all-time", "-a", help="Show events from all time"
+    ),
+    "full_year": typer.Option(False, "--show-year", "-y", help="Show the full year"),
     "fresh": typer.Option(
         False, "--fresh-data", "-f", help="Fetch fresh data from Dropbox"
     ),
-    "full_year": typer.Option(False, "--show-year", "-y", help="Show the full year"),
 }
 
 
@@ -35,17 +42,22 @@ def main(log_level: str = config.log.level) -> None:
 
 
 @app.command()
-def show_config() -> None:
+def show_config(
+    section: str | None = typer.Argument(
+        None, help="Show a section of the configuration"
+    ),
+) -> None:
     """Show the configuration."""
-    configaroo.print_configuration(config)
+    configaroo.print_configuration(config, section=section)
 
 
 @app.command()
-def show(
+def show(  # noqa: PLR0913
     start_date: datetime = options["start_date"],
     num_weeks: int = options["num_weeks"],
-    full_year: bool = options["full_year"],
     search: str = options["search"],
+    full_year: bool = options["full_year"],
+    all_time: bool = options["all_time"],
     fresh: bool = options["fresh"],
 ) -> None:
     """Show the current calendar."""
@@ -54,6 +66,8 @@ def show(
     if full_year:
         start_date = start_date.replace(month=1, day=1)
         end_date = start_date.replace(year=start_date.year + 1)
+    if all_time:
+        start_date = datetime(2019, 1, 1, tzinfo=config.timezone)
     logger.debug(f"Time range: {start_date} - {end_date}")
 
     num_days = (end_date - start_date).days

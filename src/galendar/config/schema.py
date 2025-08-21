@@ -13,6 +13,8 @@ class StrictModel(BaseModel):
 
 class PathConfig(StrictModel):
     cache: Path
+    data: Path
+    dropbox_token: Path
 
 
 class LogConfig(StrictModel):
@@ -26,7 +28,6 @@ class DropboxConfig(StrictModel):
     client_token: SecretStr
     auth_url: HttpUrl
     token_url: HttpUrl
-    token_path: Path
     requests_timeout: int
     cache_timeout: int
 

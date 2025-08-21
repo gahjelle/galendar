@@ -2,9 +2,11 @@ timezone = "Europe/Oslo"
 
 [paths]
 cache = "{__init__.cache_path}"
+data = "{__init__.data_path}"
+dropbox_token = "{paths.data}/.dropbox.token"
 
 [log]
-level = "debug"
+level = "info"
 format = "<green>{elapsed}</green> <level>{level:<8} {message}</level>"
 
 [dropbox]
@@ -13,6 +15,5 @@ client_secret = ""
 client_token = ""
 auth_url = "https://www.dropbox.com/oauth2/authorize"
 token_url = "https://api.dropboxapi.com/oauth2/token"
-token_path = "{project_path}/.dropbox.token"
 requests_timeout = 10
-cache_timeout = 3600
+cache_timeout = 86_400                                # One day

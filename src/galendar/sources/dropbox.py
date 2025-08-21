@@ -88,15 +88,15 @@ def initialize_auth() -> None:
         "refresh_token": auth_result.refresh_token,
         "expires_at": auth_result.expires_at.isoformat(),
     }
-    cfg.token_path.write_text(json.dumps(tokens), encoding="utf-8")
+    config.paths.dropbox_token.write_text(json.dumps(tokens), encoding="utf-8")
 
 
 def get_access_token() -> str:
     """Get a valid access token."""
-    if not cfg.token_path.exists():
+    if not config.paths.dropbox_token.exists():
         initialize_auth()
 
-    tokens = json.loads(cfg.token_path.read_text(encoding="utf-8"))
+    tokens = json.loads(config.paths.dropbox_token.read_text(encoding="utf-8"))
 
     if not is_expired(tokens["expires_at"]):
         return str(tokens["access_token"])
@@ -137,6 +137,6 @@ def refresh_tokens(refresh_token: str) -> None:
                 + timedelta(seconds=fresh["expires_in"])
             ).isoformat(),
         }
-        cfg.token_path.write_text(json.dumps(tokens), encoding="utf-8")
+        config.paths.dropbox_token.write_text(json.dumps(tokens), encoding="utf-8")
     else:
         response.raise_for_status()
