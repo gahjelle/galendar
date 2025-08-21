@@ -1,5 +1,6 @@
 """CLI for Galendar."""
 
+import calendar
 from datetime import datetime, timedelta
 
 import configaroo
@@ -24,6 +25,7 @@ options = {
         YESTERDAY.isoformat(), "--date", "-d", help="First date shown"
     ),
     "num_weeks": typer.Option(3, "--num-weeks", "-n", help="Number of weeks to cover"),
+    "show_cal": typer.Option(False, "--show-cal", "-c", help="Show monthly calendars"),
     "search": typer.Option("", "--search", "-s", help="Phrase to search for"),
     "all_time": typer.Option(
         False, "--all-time", "-a", help="Show events from all time"
@@ -55,6 +57,7 @@ def show_config(
 def show(  # noqa: PLR0913
     start_date: datetime = options["start_date"],
     num_weeks: int = options["num_weeks"],
+    show_cal: bool = options["show_cal"],
     search: str = options["search"],
     full_year: bool = options["full_year"],
     all_time: bool = options["all_time"],
@@ -68,6 +71,7 @@ def show(  # noqa: PLR0913
         end_date = start_date.replace(year=start_date.year + 1)
     if all_time:
         start_date = datetime(2019, 1, 1, tzinfo=config.timezone)
+
     logger.debug(f"Time range: {start_date} - {end_date}")
 
     num_days = (end_date - start_date).days
@@ -76,10 +80,16 @@ def show(  # noqa: PLR0913
         dropbox.read_file(diary_name, fresh=fresh, not_exist_ok=True)
         for diary_name in [f"diary{year}.txt" for year in years]
     )
-    calendar = Calendar(gcal.parse(diaries))
-    for event in calendar.filter(start=start_date, end=end_date):
-        if search.lower() in event.description.lower():
-            console.print(str(event))
+    events = Calendar(gcal.parse(diaries))
+
+    year, month = 0, 0
+    for event in events.filter(start=start_date, end=end_date):
+        if search.lower() not in event.description.lower():
+            continue
+        if show_cal and (year, month) != (event.start.year, event.start.month):
+            year, month = event.start.year, event.start.month
+            console.print("\n" + calendar.month(year, month))
+        console.print(str(event))
 
 
 @app.command()
