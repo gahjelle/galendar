@@ -16,7 +16,8 @@ from galendar.sources import cache, dropbox
 
 app = typer.Typer()
 
-TODAY = datetime.now(tz=config.timezone).date()
+NOW = datetime.now(tz=config.timezone)
+TODAY = NOW.date()
 YESTERDAY = TODAY - timedelta(days=1)
 MONDAY = TODAY - timedelta(days=TODAY.weekday())
 
@@ -78,7 +79,7 @@ def show(  # noqa: PLR0913
         start_date = datetime(2014, 1, 1, tzinfo=config.timezone)
 
     logger.debug(f"Time range: {start_date} - {end_date}")
-    console.print(f"[blue]{TODAY.strftime('%A, %-d %B %Y')}[/]\n")
+    console.print(f"[blue]{NOW.strftime('%A, %-d %B %Y, %H:%M')}[/]\n")
 
     num_days = (end_date - start_date).days
     years = sorted(
