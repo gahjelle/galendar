@@ -20,7 +20,13 @@ class Event:
     def __str__(self) -> str:
         """Represent an event in the console."""
         color = (
-            ("red" if self.is_today() else "yellow" if self.start < TODAY else "white")
+            (
+                "green"
+                if self.is_today()
+                else "yellow"
+                if self.start < TODAY
+                else "white"
+            )
             if self.active
             else "grey39"
         )
