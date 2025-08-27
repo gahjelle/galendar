@@ -11,7 +11,7 @@ birthdays = "birthday.txt"
 
 [log]
 level = "info"
-format = "<green>{elapsed}</green> <level>{level:<8} {message}</level>"
+template = "[green]{elapsed}[/] {color}{level:<8} {message}"
 
 [dropbox]
 client_key = ""

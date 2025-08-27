@@ -23,8 +23,8 @@ class FilesConfig(StrictModel):
 
 
 class LogConfig(StrictModel):
-    level: Literal["trace", "debug", "info", "warning", "error"]
-    format: str
+    level: Literal["trace", "debug", "info", "success", "warning", "error"]
+    template: str
 
 
 class DropboxConfig(StrictModel):

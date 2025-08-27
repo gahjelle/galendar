@@ -12,7 +12,7 @@ requires-python = ">=3.13"
 dependencies = [
     "configaroo>=0.5.0",
     "dropbox>=12.0.2",
-    "loguru>=0.7.3",
+    "logaroo>=0.1.2",
     "platformdirs>=4.3.8",
     "pyplugs>=0.5.4",
     "requests>=2.32.3",

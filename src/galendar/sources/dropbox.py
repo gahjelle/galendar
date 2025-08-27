@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 import dropbox
 import dropbox.files
 import requests
+from logaroo import logger
 
 from galendar.config import config
 from galendar.console import console
-from galendar.log import logger
 from galendar.sources import cache
 
 cfg = config.dropbox
@@ -21,24 +21,28 @@ def read_file(
     file_name: str, *, fresh: bool = False, not_exist_ok: bool = False
 ) -> str:
     """Read a file from Dropbox or cache."""
-    content = cache.read_file(file_name, timeout=cfg.cache_timeout)
-    if fresh or not content:
-        if not_exist_ok and file_name not in list_files():
-            logger.debug(f"{file_name} is not available in Dropbox")
-            return ""
+    cache_content = (
+        "" if fresh else cache.read_file(file_name, timeout=cfg.cache_timeout)
+    )
+    if cache_content:
+        return cache_content
 
-        with dropbox_auth() as dbx:
-            logger.debug(f"Downloading {file_name} from Dropbox")
-            _, response = dbx.files_download(f"/{file_name}")
-            content = response.text
-            cache.write_file(file_name, content=content)
-    return content
+    if not_exist_ok and file_name not in list_files():
+        logger.debug(f"[green]{file_name}[/] is not available in Dropbox")
+        return ""
+
+    with dropbox_auth() as dbx:
+        logger.debug(f"Download [green]{file_name}[/] from Dropbox")
+        _, response = dbx.files_download(f"/{file_name}")
+        dropbox_content = response.text
+        cache.write_file(file_name, content=dropbox_content)
+    return dropbox_content
 
 
 def write_file(file_name: str, content: str) -> None:
     """Write a file to Dropbox and cache."""
     with dropbox_auth() as dbx:
-        logger.debug(f"Writing {file_name} to Dropbox")
+        logger.debug(f"Writing [green]{file_name}[/] to Dropbox")
         # TODO(gahjelle): Use update as WriteMode to handle conflicts better.
         # Need to track rev in cache as well.
         dbx.files_upload(

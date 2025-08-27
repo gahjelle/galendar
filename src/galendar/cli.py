@@ -5,13 +5,12 @@ from datetime import datetime, timedelta
 
 import configaroo
 import typer
+from logaroo import logger
 
-from galendar import log
 from galendar.calendar import Calendar
 from galendar.config import config
 from galendar.console import console
 from galendar.formats import gcal
-from galendar.log import logger
 from galendar.sources import cache, dropbox
 
 app = typer.Typer()
@@ -42,7 +41,8 @@ options = {
 @app.callback()
 def main(log_level: str = config.log.level) -> None:
     """Geir Arne's Dropbox backed calendar."""
-    log.init(level=log_level)
+    logger.level = log_level
+    logger.template = config.log.template
 
 
 @app.command()
@@ -78,8 +78,7 @@ def show(  # noqa: PLR0913
     if all_time:
         start_date = datetime(2014, 1, 1, tzinfo=config.timezone)
 
-    logger.debug(f"Time range: {start_date} - {end_date}")
-    console.print(f"[blue]{NOW.strftime('%A, %-d %B %Y, %H:%M')}[/]\n")
+    logger.debug(f"Time range: [green]{start_date.date()} - {end_date.date()}[/]")
 
     num_days = (end_date - start_date).days
     years = sorted(
@@ -91,6 +90,7 @@ def show(  # noqa: PLR0913
     )
     events = Calendar(gcal.parse(diaries))
 
+    console.print(f"[blue]{NOW.strftime('%A, %-d %B %Y, %H:%M')}[/]\n")
     year, month = 0, 0
     for event in events.filter(start=start_date, end=end_date):
         if search.lower() not in event.description.lower():
@@ -119,8 +119,7 @@ def add(
 def upload(year: int = typer.Argument(help="Year file to upload")) -> None:
     """Upload a calendar file."""
     diary_name = config.files.events.format(year=year)
-    content = cache.read_file(diary_name)
-    if content:
+    if content := cache.read_file(diary_name):
         dropbox.write_file(diary_name, content)
 
 
