@@ -19,13 +19,18 @@ jobs:
           python-version: "3.13"
       - name: Install dependencies
         run: |
+          python -m venv .venv/
+          source .venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install --group ci
           python -m pip install .
+      - name: Permanently activate venv
+        run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - name: Run Ruff
         run: |
           python -m ruff check --output-format=github
           python -m ruff format --diff
-      - name: Run mypy
-        run: |
-          python -m mypy src/
+      - name: Run pyright type checker
+        uses: jakebailey/pyright-action@v2
+        with:
+          pylance-version: latest-release

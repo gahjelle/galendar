@@ -18,11 +18,11 @@ repos:
       - id: ruff-format
         args: ["src/"]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.404
     hooks:
-      - id: mypy
-        additional_dependencies: ["configaroo>=0.5.0", "typer>=0.16.0", "types-requests>=2.32.3"]
+    - id: pyright
+      args: ["--venvpath", "."]
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7

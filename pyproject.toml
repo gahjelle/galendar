@@ -26,7 +26,7 @@ galendar = "galendar.__main__:main"
 
 [dependency-groups]
 build = ["build>=1.3.0", "twine>=6.1.0"]
-ci = ["mypy>=1.17.1", "pytest>=8.4.1", "ruff>=0.12.7", "types-requests>=2.32.3"]
+ci = ["pyright>=1.1.404", "pytest>=8.4.1", "ruff>=0.12.7", "types-requests>=2.32.3"]
 dev = [
     { include-group = "ci" },
     { include-group = "test" },
@@ -60,9 +60,12 @@ ignore = [
 "src/galendar/config/schema.py" = ["D101"]
 "tests/test_*.py" = ["PLR2004", "S101"]
 
-[tool.mypy]
-python_version = "3.13"
-strict = true
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+verboseOutput = false
+include = ["src/", "tests/"]
+venv = ".venv"
 
 [tool.bumpver]
 current_version = "v0.1.0"
